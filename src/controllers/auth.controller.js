@@ -1,5 +1,5 @@
 const httpStatus = require('http-status');
-const { userService } = require('../services');
+const { userService, tokenService } = require('../services');
 const logger = require('../config/logger');
 
 const register = async (req, res) => {
@@ -13,6 +13,14 @@ const register = async (req, res) => {
   }
 };
 
+const login = async (req, res) => {
+  const user = await userService.loginUser(req.body.email, req.body.password);
+  const tokens = await authService.generateToken(user.id);
+  const response = { user: user.transform(), tokens };
+  res.send(response);
+};
+
 module.exports = {
   register,
+  login
 };
