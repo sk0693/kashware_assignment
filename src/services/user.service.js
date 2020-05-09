@@ -32,7 +32,7 @@ const loginUser = async (email, password) => {
 const checkPassword = async (password, correctPassword) => {
   const isPasswordMatch = await bcrypt.compare(password, correctPassword);
   if (!isPasswordMatch) {
-    throw { status: httpStatus.BAD_REQUEST, message: 'Passwords do not match' };
+    throw { status: httpStatus.UNAUTHORIZED, message: 'Password do not match' };
   }
 };
 
