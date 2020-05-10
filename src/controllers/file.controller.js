@@ -1,6 +1,7 @@
 const multer = require('multer');
 const httpStatus = require('http-status');
 const multerStorage = require('../config/multer-storage');
+const compressing = require('compressing');
 const path = require('path');
 const fs = require('fs-extra')
 const { fileService } = require('../services');
@@ -35,11 +36,11 @@ const uploadSingleFile = async (req, res) => {
     const filename = req.filename;
     const filepath = '/uploads/';
     const fileData = {
-      userId: req.user._id,
+      userId: req.user.id,
       title: req.body.title || filename,
       description: req.body.description,
       isCompressed: req.isCompressed,
-      filUrl: filepath + filename,
+      fileUrl: filepath + filename,
       meta: {
         filepath: filepath,
         filename: filename,
@@ -48,7 +49,7 @@ const uploadSingleFile = async (req, res) => {
       }
     }
     await fileService.saveFile(fileData);
-    return res.status(httpStatus.OK).send("File uploaded succesfully with name " + filename); // send("File Submitted successfully");
+    return res.status(httpStatus.CREATED).send({ result: "File uploaded succesfully with name " + filename }); // send("File Submitted successfully");
   })
 };
 
@@ -58,11 +59,9 @@ const uploadSingleFile = async (req, res) => {
 //   var busboy = new Busboy({ headers: req.headers });
 //   busboy.on('file', function (fieldname, file, filename, encoding, mimetype) {
 //     var saveTo = path.join('./public', filename);
-//     console.log('Uploading: ' + saveTo);
 //     file.pipe(fs.createWriteStream(saveTo));
 //   });
 //   busboy.on('finish', function () {
-//     console.log('Upload complete');
 //     res.writeHead(200, { 'Connection': 'close' });
 //     res.end("That's all folks!");
 //   });
@@ -72,10 +71,8 @@ const uploadSingleFile = async (req, res) => {
 
 const getAll = async (req, res) => {
   try {
-
-    console.log("getAll")
-    const user = req.user.transform()
-    const result = await fileService.getFilesByUserId(user.id);
+    const user = req.user
+    const result = await fileService.getFiles(user.id);
 
     res.status(httpStatus.OK).send({ result: result });
   } catch (error) {
@@ -83,10 +80,8 @@ const getAll = async (req, res) => {
   }
 };
 
-
 const getById = async (req, res) => {
   try {
-    console.log("getById")
     const fileId = req.params.fileId;
     if (!fileId) {
       throw {
@@ -94,8 +89,8 @@ const getById = async (req, res) => {
         message: "File id not found"
       }
     }
-    const user = req.user.transform()
-    const result = await fileService.getFilesByUserId(user.id, fileId)[0];
+    const user = req.user
+    const result = (await fileService.getFiles(user.id, fileId))[0];
     res.status(httpStatus.OK).send({ "result": result });
   } catch (error) {
     res.status(error.status).send({ message: error.message });
@@ -111,7 +106,7 @@ const deleteById = async (req, res) => {
         message: "File id not found"
       }
     }
-    const user = req.user.transform()
+    const user = req.user
     const result = await fileService.deleteById(user.id, fileId);
     res.status(httpStatus.NO_CONTENT).send({ result: result });
   } catch (error) {
@@ -119,10 +114,31 @@ const deleteById = async (req, res) => {
   }
 };
 
+const unCompressFile = async (fileName, cb) => {
+  try {
+    const basePath = path.resolve(__dirname, '../../');
+
+    const targetDir = basePath + fileName;
+    const destinationDir = basePath + '/uncompress/';
+
+    await fs.ensureDir(destinationDir);
+
+    // let uncompressDone = await compressing.gzip.uncompress(targetDir, destinationDir);
+
+    new compressing.gzip.UncompressStream({ source: targetDir })
+      .pipe(fs.createWriteStream(destinationDir))
+      .on('finish', cb)
+  } catch (error) {
+    console.log("uncompressERRORR", error);
+    throw error;
+  }
+}
+
 
 module.exports = {
   uploadSingleFile,
   getAll,
   getById,
-  deleteById
+  deleteById,
+  unCompressFile
 };

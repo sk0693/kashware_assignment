@@ -34,10 +34,11 @@ MyCustomStorage.prototype._handleFile = function _handleFile(req, file, cb) {
             if (['.txt'].includes(fileExt)) {
                 canCompressed = true;
                 req['isCompressed'] = true;
-            } else {
-                path += fileExt;
-                filename += fileExt;
+                fileExt = '.gz';
             }
+
+            path += fileExt;
+            filename += fileExt;
 
             var outStream = fs.createWriteStream(path);
 

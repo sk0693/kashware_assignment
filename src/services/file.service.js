@@ -5,7 +5,7 @@ const saveFile = async fileBody => {
   return user;
 };
 
-const getFilesByUserId = async (userId, fileId) => {
+const getFiles = async (userId, fileId) => {
   let query = {
     isDeleted: false,
     userId
@@ -13,9 +13,17 @@ const getFilesByUserId = async (userId, fileId) => {
   if (fileId) {
     query['_id'] = fileId;
   }
-
+  
   const files = await File.find(query);
-  console.log("files", query)
+  return files;
+}
+
+const getFileForInternal = async (fileId) => {
+  let query = {
+    _id: fileId,
+    isDeleted: false
+  };
+  const files = await File.findOne(query);
   return files;
 }
 
@@ -29,6 +37,7 @@ const deleteById = async (userId, fileId) => {
 
 module.exports = {
   saveFile,
-  getFilesByUserId,
-  deleteById
+  getFiles,
+  deleteById,
+  getFileForInternal
 }

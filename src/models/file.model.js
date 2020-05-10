@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 // const validator = require('validator');
 // const bcrypt = require('bcryptjs');
-// const { omit, pick } = require('lodash');
+const { omit, pick } = require('lodash');
 
 const fileSchema = mongoose.Schema(
   {
@@ -24,7 +24,7 @@ const fileSchema = mongoose.Schema(
       type: String,
       trim: true,
     },
-    filUrl: {
+    fileUrl: {
       type: String,
       require: true
     },
@@ -39,11 +39,15 @@ const fileSchema = mongoose.Schema(
   },
   {
     timestamps: true,
-    // toObject: { getters: true },
-    // toJSON: { getters: true },
+    toObject: { getters: true },
+    toJSON: { getters: true },
   }
 );
 
+fileSchema.methods.transform = function () {
+  const file = this;
+  return omit(file.toObject(), ['_id']); //pick(user.toJSON(), ['id', 'email', 'name']);
+};
 
 const File = mongoose.model('File', fileSchema);
 
