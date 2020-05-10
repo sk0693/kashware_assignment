@@ -4,6 +4,13 @@ const fileController = require('../../controllers/file.controller');
 const router = express.Router();
 
 
-router.post('/upload-single', fileController.uploadSingleFile);
+router.get('/', fileController.getAll);
+router.post('/upload', fileController.uploadSingleFile);
+
+router
+    .route('/:fileId')
+    .get(fileController.getById)
+    .delete(fileController.deleteById)
+
 
 module.exports = router;

@@ -59,7 +59,7 @@ app.use(function (err, req, res, next) {
   // logger.info("Error Handler")
   // render the error page
   console.log(err)
-  res.status(err.status || 500);
+  res.status(err.status || 501);
   res.send(err);
 });
 

@@ -53,6 +53,7 @@ const uploadSingleFile = async (req, res) => {
 };
 
 
+
 // const uploadSingleFile = async (req, res) => {
 //   var busboy = new Busboy({ headers: req.headers });
 //   busboy.on('file', function (fieldname, file, filename, encoding, mimetype) {
@@ -69,6 +70,59 @@ const uploadSingleFile = async (req, res) => {
 
 // }
 
+const getAll = async (req, res) => {
+  try {
+
+    console.log("getAll")
+    const user = req.user.transform()
+    const result = await fileService.getFilesByUserId(user.id);
+
+    res.status(httpStatus.OK).send({ result: result });
+  } catch (error) {
+    res.status(httpStatus.BAD_REQUEST).send({ message: error.message });
+  }
+};
+
+
+const getById = async (req, res) => {
+  try {
+    console.log("getById")
+    const fileId = req.params.fileId;
+    if (!fileId) {
+      throw {
+        status: httpStatus.BAD_REQUEST,
+        message: "File id not found"
+      }
+    }
+    const user = req.user.transform()
+    const result = await fileService.getFilesByUserId(user.id, fileId)[0];
+    res.status(httpStatus.OK).send({ "result": result });
+  } catch (error) {
+    res.status(error.status).send({ message: error.message });
+  }
+};
+
+const deleteById = async (req, res) => {
+  try {
+    const fileId = req.params.fileId;
+    if (!fileId) {
+      throw {
+        status: httpStatus.BAD_REQUEST,
+        message: "File id not found"
+      }
+    }
+    const user = req.user.transform()
+    const result = await fileService.deleteById(user.id, fileId);
+    res.status(httpStatus.NO_CONTENT).send({ result: result });
+  } catch (error) {
+    res.status(httpStatus.BAD_REQUEST).send({ message: error.message });
+  }
+};
+
+
 module.exports = {
   uploadSingleFile,
+  getAll,
+  getById,
+  deleteById
 };
