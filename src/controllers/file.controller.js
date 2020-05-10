@@ -1,21 +1,19 @@
 const multer = require('multer');
 const httpStatus = require('http-status');
-// const multerStorage = require('../config/multer-storage');
+const multerStorage = require('../config/multer-storage');
 const path = require('path');
-const { userService, fileService } = require('../services');
+const fs = require('fs-extra')
+const { fileService } = require('../services');
 const logger = require('../config/logger');
+const uploadPath = path.resolve(__dirname, '../../uploads/');
 
-const uploadPath = path.resolve(__dirname, '../../');
-// const uploadTempPath = path.join(uploadPath, 'temp');
-// const upload = multer({ dest: uploadTempPath });
-
-var storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    console.log(uploadPath)
-    cb(null, uploadPath + '/public/my-uploads')
+var storage = multerStorage({
+  destination: async (req, file, cb) => {
+    await fs.ensureDir(uploadPath);
+    cb(null, uploadPath)
   },
-  filename: function (req, file, cb) {
-    cb(null, file.fieldname + '-' + Date.now())
+  filename: (req, file, cb) => {
+    cb(null, path.extname(file.originalname))
   }
 })
 
@@ -23,28 +21,53 @@ const upload = multer({
   storage: storage
 })
 
-const uploadSingleFile = async (req, res) => {
-  try {
-    const uploadSingle = upload.single('file');
+const uploadSingle = upload.single('file');
 
-    uploadSingle(req, res, async function (err) {
-      if (err) {
-        return res.send(err);
+const uploadSingleFile = async (req, res) => {
+
+  uploadSingle(req, res, async function (err) {
+    if (err) {
+      return res.status(httpStatus.INTERNAL_SERVER_ERROR).json(err);
+    }
+    if (!req.file) {
+      return res.status(httpStatus.BAD_REQUEST).json("Image not found");
+    }
+    const filename = req.filename;
+    const filepath = '/uploads/';
+    const fileData = {
+      userId: req.user._id,
+      title: req.body.title || filename,
+      description: req.body.description,
+      isCompressed: req.isCompressed,
+      filUrl: filepath + filename,
+      meta: {
+        filepath: filepath,
+        filename: filename,
+        size: req.file.size,
+        originalname: req.file.originalname
       }
-      const title = "my file";
-      const fileData = {
-        user_id: req.user._id,
-        title: req.body.title || title,
-        description : req.body.description || undefined
-      }
-      await fileService.saveFile(fileData);
-      res.status(httpStatus.OK).send(req.file); // send("File Submitted successfully");
-    })
-  } catch (error) {
-    logger.error(error);
-    res.status(httpStatus.BAD_REQUEST).send(error.message);
-  }
+    }
+    await fileService.saveFile(fileData);
+    return res.status(httpStatus.OK).send("File uploaded succesfully with name " + filename); // send("File Submitted successfully");
+  })
 };
+
+
+// const uploadSingleFile = async (req, res) => {
+//   var busboy = new Busboy({ headers: req.headers });
+//   busboy.on('file', function (fieldname, file, filename, encoding, mimetype) {
+//     var saveTo = path.join('./public', filename);
+//     console.log('Uploading: ' + saveTo);
+//     file.pipe(fs.createWriteStream(saveTo));
+//   });
+//   busboy.on('finish', function () {
+//     console.log('Upload complete');
+//     res.writeHead(200, { 'Connection': 'close' });
+//     res.end("That's all folks!");
+//   });
+//   return req.pipe(busboy);
+
+// }
 
 module.exports = {
   uploadSingleFile,

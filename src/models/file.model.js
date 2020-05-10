@@ -5,7 +5,7 @@ const mongoose = require('mongoose');
 
 const fileSchema = mongoose.Schema(
   {
-    user_id: {
+    userId: {
       type: String,
       required: true,
     },
@@ -24,14 +24,23 @@ const fileSchema = mongoose.Schema(
       type: String,
       trim: true,
     },
-    file: {
+    filUrl: {
+      type: String,
+      require: true
+    },
+    isCompressed: {
+      type: Boolean,
+      required: true,
+      default: false
+    },
+    meta: {
       type: Object,
     }
   },
   {
     timestamps: true,
-    toObject: { getters: true },
-    toJSON: { getters: true },
+    // toObject: { getters: true },
+    // toJSON: { getters: true },
   }
 );
 

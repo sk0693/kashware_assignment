@@ -25,15 +25,18 @@ app.use(express.json());
 // parse urlencoded request body
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
-app.use(express.static(path.join(__dirname, 'public')));
+// app.use(express.static('public'));
 
 // enable cors
 app.use(cors());
 app.options('*', cors());
 
 
+// app.use(require('body-parser').urlencoded({ extended: true }));
+// app.use(require('express-session')({ secret: 'keyboard cat', resave: true, saveUninitialized: true }));
 // jwt authentication
 app.use(passport.initialize());
+// app.use(passport.session());
 passport.use('jwt', jwtStrategy);
 
 const routes = require('./routes/v1');
@@ -53,8 +56,9 @@ app.use(function (err, req, res, next) {
   // set locals, only providing error in development
   res.locals.message = err.message;
   res.locals.error = req.app.get('env') === 'development' ? err : {};
-
+  // logger.info("Error Handler")
   // render the error page
+  console.log(err)
   res.status(err.status || 500);
   res.send(err);
 });

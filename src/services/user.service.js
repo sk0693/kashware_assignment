@@ -16,7 +16,6 @@ const createUser = async userBody => {
 };
 
 const saveToken = async (token, userId) => {
-  console.log("userid", userId);
   const tokenDoc = await User.findByIdAndUpdate(userId, {token});
   return tokenDoc;
 };
