@@ -9,25 +9,6 @@ const checkDuplicateEmail = async (email, excludeUserId) => {
   }
 };
 
-const createUser = async userBody => {
-  await checkDuplicateEmail(userBody.email);
-  const user = await User.create(userBody);
-  return user;
-};
-
-const saveToken = async (token, userId) => {
-  const tokenDoc = await User.findByIdAndUpdate(userId, {token});
-  return tokenDoc;
-};
-
-
-const loginUser = async (email, password) => {
-  const user = await getUserByEmail(email);
-  await checkPassword(password, user.password);
-  return user;
-};
-
-
 const checkPassword = async (password, correctPassword) => {
   const isPasswordMatch = await bcrypt.compare(password, correctPassword);
   if (!isPasswordMatch) {
@@ -35,6 +16,51 @@ const checkPassword = async (password, correctPassword) => {
   }
 };
 
+/**
+ * 
+ * @param {Object} userBody 
+ * @return {object } User doc type object
+ * 
+ * It will take body to create the new doc;
+ */
+const createUser = async userBody => {
+  await checkDuplicateEmail(userBody.email);
+  const user = await User.create(userBody);
+  return user;
+};
+
+/**
+ * 
+ * @param {String} token 
+ * @param {String} userId 
+ * 
+ * @return {null} null
+ */
+const saveToken = async (token, userId) => {
+  await User.findByIdAndUpdate(userId, { token });
+  return null;
+};
+
+
+/**
+ * 
+ * @param {string} email 
+ * @param {string} password 
+ * @return {object } User doc type object
+ */
+const loginUser = async (email, password) => {
+  const user = await getUserByEmail(email);
+  await checkPassword(password, user.password);
+  return user;
+};
+
+
+/**
+ * 
+ * @param {String} email 
+ * @return {object } User doc type object
+ * 
+ */
 const getUserByEmail = async email => {
   const user = await User.findOne({ email });
   if (!user) {
