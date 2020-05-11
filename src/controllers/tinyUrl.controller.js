@@ -60,15 +60,18 @@ const serveFile = async (req, res) => {
     if (!fileDoc) {
       throw 'Not Found';
     }
+    
+    res.setHeader('content-type', fileDoc['meta']['mimeType']);
+    // res.setHeader('content-type', 'application/json');
+
     if (fileDoc['isCompressed']) {
-      // fileController.unCompressFile(fileDoc['fileUrl'], (data) => {
-      //   console.log("datadatadatadatadatadata", data);
-
-      // });
+      fileController.unCompressFile(fileDoc['fileUrl'], res);
+    } else {
+      let filepath = path.resolve(__dirname, `../../${tinyUrlDoc['originalUrl']}`);
+      // res.setHeader('content-type', fileDoc['meta']['mimetype']);
+      fs.createReadStream(filepath).pipe(res);
+      // res.download(filepath);
     }
-
-    let filepath = path.resolve(__dirname, `../../${tinyUrlDoc['originalUrl']}`);
-    res.download(filepath);
   } catch (error) {
     console.log(error);
     res.status(httpStatus.BAD_REQUEST).send({ message: error.message });

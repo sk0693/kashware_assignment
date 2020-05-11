@@ -22,7 +22,7 @@ MyCustomStorage.prototype._handleFile = function _handleFile(req, file, cb) {
 
         if (err) return cb(err);
 
-        this.getFileName(req, file, (err, fileExt) => {
+        this.getFileName(req, file, (err, fileExt, mimeType) => {
 
             if (err) return cb(err);
 
@@ -43,12 +43,14 @@ MyCustomStorage.prototype._handleFile = function _handleFile(req, file, cb) {
             var outStream = fs.createWriteStream(path);
 
             if (canCompressed) {
-                file.stream.pipe(new compressing.gzip.FileStream())
+                file.stream.pipe(new compressing.gzip.FileStream()).pipe(outStream)
+            } else {
+                file.stream.pipe(outStream);
             }
 
-            file.stream.pipe(outStream);
 
             req['filename'] = filename;
+            req['mimeType'] = mimeType;
 
             outStream.on('error', cb)
             outStream.on('finish', function () {

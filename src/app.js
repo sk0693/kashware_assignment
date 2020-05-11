@@ -46,7 +46,7 @@ const tinyUrlRoutes = require('./routes/v1/tinyUrl.route');
 // v1 api routes
 app.use('/v1/auth', authRoutes);
 // app.use(`/v1/${process.env.BASE_TINY_URL}`, tinyUrlRoutes);
-app.use('/v1/tiny', tinyUrlRoutes);
+app.use('/tiny', tinyUrlRoutes);
 app.use('/v1', passport.authenticate('jwt', {session: false}), routes);
 
 // catch 404 and forward to error handler

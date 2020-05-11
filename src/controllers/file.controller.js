@@ -14,7 +14,7 @@ var storage = multerStorage({
     cb(null, uploadPath)
   },
   filename: (req, file, cb) => {
-    cb(null, path.extname(file.originalname))
+    cb(null, path.extname(file.originalname), file.mimetype)
   }
 })
 
@@ -34,6 +34,7 @@ const uploadSingleFile = async (req, res) => {
       return res.status(httpStatus.BAD_REQUEST).json("Image not found");
     }
     const filename = req.filename;
+    const mimeType = req.mimeType;
     const filepath = '/uploads/';
     const fileData = {
       userId: req.user.id,
@@ -45,7 +46,8 @@ const uploadSingleFile = async (req, res) => {
         filepath: filepath,
         filename: filename,
         size: req.file.size,
-        originalname: req.file.originalname
+        originalname: req.file.originalname,
+        mimeType
       }
     }
     await fileService.saveFile(fileData);
@@ -114,24 +116,33 @@ const deleteById = async (req, res) => {
   }
 };
 
-const unCompressFile = async (fileName, cb) => {
+const unCompressFile = async (fileName, res) => {
   try {
     const basePath = path.resolve(__dirname, '../../');
 
-    const targetDir = basePath + fileName;
-    const destinationDir = basePath + '/uncompress/';
+    const sourceFile = basePath + fileName;
+    const destinationDir = basePath + '/uncompress';
+
+    console.log("sourceFile", sourceFile)
+    console.log("destinationDir", destinationDir);
 
     await fs.ensureDir(destinationDir);
 
-    // let uncompressDone = await compressing.gzip.uncompress(targetDir, destinationDir);
+    // let uncompressDone = await compressing.gzip.uncompress(sourceFile, destinationDir);
 
-    new compressing.gzip.UncompressStream({ source: targetDir })
-      .pipe(fs.createWriteStream(destinationDir))
-      .on('finish', cb)
+    new compressing.gzip.UncompressStream({ source: sourceFile })
+      .on('error', handleError)
+      .pipe(res)
+      .on('error', handleError);
+      
   } catch (error) {
     console.log("uncompressERRORR", error);
     throw error;
   }
+}
+
+const handleError = (error) => {
+  throw error;
 }
 
 
