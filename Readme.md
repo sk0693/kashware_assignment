@@ -262,7 +262,7 @@ When user wants to share the file to publically, then in response the server wil
 ### tiny/:[tinyUrl]
 
 ```http
-GET /v1/tiny/nkqYrhi
+GET /tiny/nkqYrhi
 ```
 
 When user wants to share the file to publically, then in response the server will give the `tiny url`
