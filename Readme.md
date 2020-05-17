@@ -270,3 +270,11 @@ When user wants to share the file to publically, then in response the server wil
 #### Response
 
 The file will be served on the browser. And if the uploaded file has `.txt` extension then it will be uncompressed before served.
+
+## Authors
+
+* **Sourabh Khurana** 
+
+- [GitHub](https://github.com/sk0693)
+- [LinkedIn](https://linkedin.com/sk0693)
+- [Portfolio](https://sourabhkhurana.com/resume.html)
