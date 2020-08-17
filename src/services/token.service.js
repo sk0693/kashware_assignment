@@ -21,6 +21,7 @@ const generateToken = (userId, secret = config.jwt.secret) => {
  * @return {Object} user doc
  */
 const verifyToken = async (token) => {
+    token = (token.split(' '))[1];
     const payload = jwt.verify(token, config.jwt.secret);
     const userDoc = await User.findOne({ token, user: payload.sub });
     if (!userDoc) {

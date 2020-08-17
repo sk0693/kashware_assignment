@@ -41,13 +41,11 @@ passport.use('jwt', jwtStrategy);
 
 const routes = require('./routes/v1');
 const authRoutes = require('./routes/v1/auth.route');
-const tinyUrlRoutes = require('./routes/v1/tinyUrl.route');
 
 // v1 api routes
-app.use('/v1/auth', authRoutes);
-// app.use(`/v1/${process.env.BASE_TINY_URL}`, tinyUrlRoutes);
-app.use('/tiny', tinyUrlRoutes);
-app.use('/v1', passport.authenticate('jwt', {session: false}), routes);
+app.use('/api/v1/auth', authRoutes);
+// app.use('/api/v1', routes);
+app.use('/api/v1', passport.authenticate('jwt', {session: false}), routes);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
@@ -61,7 +59,6 @@ app.use(function (err, req, res, next) {
   res.locals.error = req.app.get('env') === 'development' ? err : {};
   // logger.info("Error Handler")
   // render the error page
-  console.log(err)
   res.status(err.status || 501);
   res.send(err);
 });

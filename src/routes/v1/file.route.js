@@ -4,13 +4,13 @@ const fileController = require('../../controllers/file.controller');
 const router = express.Router();
 
 
-router.get('/', fileController.getAll);
-router.post('/upload', fileController.uploadSingleFile);
+router.post('/createThumbnail', fileController.createThumbnail);
+// router.get('/', fileController.getAll);
 
-router
-    .route('/:fileId')
-    .get(fileController.getById)
-    .delete(fileController.deleteById)
+// router
+//     .route('/:fileId')
+//     .get(fileController.getById)
+//     .delete(fileController.deleteById)
 
 
 module.exports = router;

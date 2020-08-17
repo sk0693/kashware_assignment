@@ -1,14 +1,12 @@
 const express = require('express');
-const userController = require('../../controllers/user.controller');
+const patchController = require('../../controllers/patch.controller');
 
 
 const router = express.Router();
 
 // router.get('/shareFile/:fileId', userController.shareFile);
 
-router
-    .route('/')
-    .get(userController.getUserDetails);
+router.post('/applyPatch', patchController.applyPatch);
 
 
 module.exports = router;
