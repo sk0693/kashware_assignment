@@ -7,13 +7,13 @@ This project is build for handling the files operation and storage. The apis is 
 1. Clone the repository using :
 
 ```bash
-git clone https://github.com/sk0693/crud-operation-on-file.git
+git clone https://github.com/sk0693/kashware_backend.git
 ```
 
 2. Change the repository directory :
 
 ```bash
-cd crud-operation-on-file
+cd kashware_backend
 ```
 
 3. Install the needed node packges/modules :
@@ -28,30 +28,23 @@ npm install
 npm start
 ```
 
+OR with Docker.
+
+```bash
+docker build -t kashware_backend . && docker run kashware_backend
+```
+
 ## Featuring
 
-- Authorization
-- User Authentication
-- File Uploading
-- File Storage
-- Compressing
-- Uncompressing
-- Tiny Url
-- File Serve
+- Authentication
+- JSON patching
+- Image Thumbnail Generation
 
-## Authorization
+## Authentication
 
-All API requests require the use of a generated Authorization Token `(JWT)`. You have to register and then login the application using `register` and `login` routes respectively. These APIs is not required the jwt token.
+All API requests require the use of a generated Authentication Token `(JWT)`. You have to register and then login the application using `register` and `login` routes respectively. These APIs is not required the jwt token.
 
 To authenticate an API request, you should provide your API key in the `Authorization` header.
-
-Alternatively, you may use cookies in the browser for the `GET` requests to authorize yourself to the API. But note that this is likely to leave traces in things like your history, if accessing the API through a browser.
-
-Using below Api route.
-
-```http
-GET :  /v1/auth/loginUsingGetAPI?email=[email]&password=[password]
-```
 
 ### In headers
 
@@ -59,16 +52,12 @@ GET :  /v1/auth/loginUsingGetAPI?email=[email]&password=[password]
 jwt :  Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI1ZWI4NGQ2YzNmOGIwMDc1ZGRmYzhmYTAiLCJpYXQiOjE1ODkxMzY3NjJ9.
 ```
 
-<!-- | Parameter | Type | Description |
-| :--- | :--- | :--- |
-| `jwt` | `string` | **Required**. JWT Token | -->
-
 ## Availaible Routes
 
 ### register
 
 ```http
-POST /v1/auth/register
+POST api/v1/auth/register
 ```
 
 | Parameter  | Type     | Description                           |
@@ -92,7 +81,7 @@ POST /v1/auth/register
 ### login
 
 ```http
-POST /v1/auth/login
+POST api/v1/auth/login
 ```
 
 | Parameter  | Type     | Description                           |
@@ -113,168 +102,50 @@ POST /v1/auth/login
 }
 ```
 
-### file/upload
+### createThumbnail
 
 ```http
-POST /v1/file/upload
+POST api/v1/file/createThumbnail
 ```
 
-| Parameter | Type     | Description            |
-| :-------- | :------- | :--------------------- |
-| `file`    | `FILE`   | **Required**. Any file |
-| `title`   | `String` | **Optional**.          |
-| `title`   | `String` | **Optional**.          |
-
-While uploading, there is a compression algo applied on some kind of file. I have applied this algo on only files which has file `.txt` file extension else remains the same.
+| Parameter   | Type     | Description   |
+| :---------- | :------- | :------------ |
+| `image_url` | `String` | **Required**. |
 
 #### Response
 
 ```javascript
 {
-    "result": "File uploaded succesfully with named `[file name]`"
+  ("The thumbnail of 50x50 pixels.");
 }
 ```
 
-### file
+### applyPatch
 
 ```http
-GET /v1/file
+POST api/v1/patch/applyPatch
 ```
 
-To get the all files which is uploaded by the user
-
-<!-- | Parameter  | Type     | Description                           |
-| :--------- | :------- | :------------------------------------ |
-| `email`    | `string` | **Required**. The valid email address |
-| `password` | `string` | **Required**. 8 digit password        | -->
-
-#### Response
-
-```javascript
-{
-    "result": [
-        {
-            "isDeleted": Boolean,
-            "isCompressed": Boolean,
-            "_id": String,
-            "userId": String,
-            "title": String,
-            "description": String,
-            "fileUrl": String,
-            "meta": {
-                "filepath": String,
-                "filename": String,
-                "size": Number,
-                "originalname": String,
-                "mimeType": String
-            },
-            "createdAt": Date,
-            "updatedAt": Date,
-        }
-        ...
-    ]
-}
-```
-
-### file/:[fileId]
-
-```http
-GET /v1/file/5eb97457f2130e4060365dd4
-```
-
-To get the single file using `[fileId]` params which is uploaded by the user
-
-<!-- | Parameter  | Type     | Description                           |
-| :--------- | :------- | :------------------------------------ |
-| `email`    | `string` | **Required**. The valid email address |
-| `password` | `string` | **Required**. 8 digit password        | -->
-
-#### Response
-
-```javascript
-{
-    "result":
-        {
-            "isDeleted": Boolean,
-            "isCompressed": Boolean,
-            "_id": String,
-            "userId": String,
-            "title": String,
-            "description": String,
-            "fileUrl": String,
-            "meta": {
-                "filepath": String,
-                "filename": String,
-                "size": Number,
-                "originalname": String,
-                "mimeType": String
-            },
-            "createdAt": Date,
-            "updatedAt": Date,
-        }
-}
-```
-
-### file/:[fileId]
-
-```http
-DELETE /v1/file/5eb97457f2130e4060365dd4
-```
-
-Delete the selected file using `[fileId]` params
-
-### user/
-
-```http
-GET /v1/user/
-```
-
-Getting the user details.
+| Parameter   | Type     | Description   |
+| :---------- | :------- | :------------ |
+| `json_obj`  | `Object` | **Required**. |
+| `patch_arr` | `Array`  | **Required**. |
 
 #### Response
 
 ```javascript
 {
     "result": {
-        "id": String,
-        "email": String,
-        "name": String
+        "baz": "boo",
+        "foo": "bar"
     }
 }
 ```
 
-### user/share/:[fileId]
-
-```http
-GET /v1/user/shareFile/5eb97457f2130e4060365dd4
-```
-
-When user wants to share the file to publically, then in response the server will give the `tiny url`
-
-#### Response
-
-```javascript
-{
-    "result": String [`the tiny url in return`]
-}
-```
-
-### tiny/:[tinyUrl]
-
-```http
-GET /tiny/nkqYrhi
-```
-
-When user wants to share the file to publically, then in response the server will give the `tiny url`
-
-#### Response
-
-The file will be served on the browser. And if the uploaded file has `.txt` extension then it will be uncompressed before served.
-
 ## Authors
 
-* **Sourabh Khurana** 
+- **Sourabh Khurana**
 
-- [GitHub](https://github.com/sk0693)
-- [LinkedIn](https://linkedin.com/sk0693)
-- [Portfolio](https://sourabhkhurana.com/resume.html)
+* [GitHub](https://github.com/sk0693)
+* [LinkedIn](https://linkedin.com/sk0693)
+* [Portfolio](https://sourabhkhurana.com/resume.html)
